@@ -8,6 +8,7 @@ on:
 jobs:
   android:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,8 +29,12 @@ jobs:
         run: |
           buildozer -v android debug
 
+      - name: Check for APK file
+        run: |
+          ls -l ./bin/*.apk
+
       - name: Upload APK as an artifact
         uses: actions/upload-artifact@v2
         with:
           name: apk
-          path: ./.buildozer/android/platform/build/dists/*/bin/*.apk
+          path: ./bin/*.apk
