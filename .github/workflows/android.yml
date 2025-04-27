@@ -31,10 +31,10 @@ jobs:
 
       - name: Check for APK file
         run: |
-          ls -l ./bin/*.apk
+          ls -l ./.buildozer/android/platform/build/dists/*/bin/*.apk
 
       - name: Upload APK as an artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: ./bin/*.apk
+          path: ./.buildozer/android/platform/build/dists/*/bin/*.apk
