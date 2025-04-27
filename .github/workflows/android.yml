@@ -1,44 +1,32 @@
 name: Build Kivy APK
+
 on:
   push:
     branches:
-      - main  # or your preferred branch
+      - main  # Or your active development branch
 
 jobs:
   android:
     runs-on: ubuntu-latest
+
     steps:
+      # 1) Check out your repository’s code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # 2) Build your APK using the community Buildozer Action
+      - name: Build APK with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
         with:
-          python-version: '3.x'
+          command: android debug
 
-      - name: Install Buildozer and dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools libncurses5-dev libsqlite3-dev
-          pip install --upgrade pip
-          pip install buildozer
-
-          # Install Android SDK Build Tools and AIDL
-          sudo apt-get install -y android-sdk
-          yes | sdkmanager --licenses
-          sdkmanager "build-tools;36.0.0"
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-30"
-        
-      - name: Build APK using Buildozer
-        run: |
-          buildozer -v android debug
-
-      - name: Upload APK as an artifact
-        uses: actions/upload-artifact@v2
+      # 3) Upload the resulting APK as an artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
           name: apk
           path: ./.buildozer/android/platform/build/dists/*/bin/*.apk
+
 
 
 
