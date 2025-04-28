@@ -3,41 +3,41 @@ name: Build Kivy APK
 on:
   push:
     branches:
-      - main  # or your chosen branch
+      - main
 
 jobs:
   android:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Check out your code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2) Install Android & Buildozer system dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            openjdk-11-jdk \
             python3-pip python3-dev build-essential \
-            zlib1g-dev libncurses5-dev libssl-dev libffi-dev libsqlite3-dev  # zlib headers, etc. :contentReference[oaicite:1]{index=1}
+            libssl-dev libffi-dev libncurses5-dev libsqlite3-dev zlib1g-dev \
+            openjdk-11-jdk
 
-      # 3) Install Python packages: setuptools (restores distutils), Cython, Buildozer
       - name: Install Python packages
         run: |
-          pip install --upgrade pip setuptools wheel       # setuptools vendored distutils :contentReference[oaicite:2]{index=2}
-          pip install cython                              # Cython required by python-for-android :contentReference[oaicite:3]{index=3}
-          pip install buildozer==1.4.2                    # Pin a known stable buildozer release
+          pip install --upgrade pip setuptools wheel      # setuptools provides distutils :contentReference[oaicite:4]{index=4}
+          pip install cython                               # needed by python-for-android 
+          pip install buildozer                            # installs latest 1.5.0 :contentReference[oaicite:5]{index=5}
 
-      # 4) Run Buildozer locally (no Docker)
       - name: Build APK using Buildozer
         run: |
           buildozer -v android debug
 
-      # 5) Upload the resulting APK
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4             # only v4 works on GitHub.com runners :contentReference[oaicite:4]{index=4}
+      - name: Upload APK as an artifact
+        uses: actions/upload-artifact@v4                # only v4 is supported now :contentReference[oaicite:6]{index=6}
         with:
           name: apk
           path: ./.buildozer/android/platform/build-dists/*/bin/*.apk
