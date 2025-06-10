@@ -26,18 +26,25 @@ jobs:
             libssl-dev libffi-dev libncurses5-dev libsqlite3-dev zlib1g-dev \
             openjdk-11-jdk
 
+      - name: Set up Android SDK Build Tools
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "build-tools;36.0.0"
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-33"
+
       - name: Install Python packages
         run: |
-          pip install --upgrade pip setuptools wheel      # setuptools provides distutils :contentReference[oaicite:4]{index=4}
-          pip install cython                               # needed by python-for-android 
-          pip install buildozer                            # installs latest 1.5.0 :contentReference[oaicite:5]{index=5}
+          pip install --upgrade pip setuptools wheel
+          pip install cython
+          pip install buildozer==1.5.0
 
       - name: Build APK using Buildozer
         run: |
           buildozer -v android debug
 
       - name: Upload APK as an artifact
-        uses: actions/upload-artifact@v4                # only v4 is supported now :contentReference[oaicite:6]{index=6}
+        uses: actions/upload-artifact@v4
         with:
           name: apk
           path: ./.buildozer/android/platform/build-dists/*/bin/*.apk
