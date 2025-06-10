@@ -24,14 +24,22 @@ jobs:
           sudo apt-get install -y \
             python3-pip python3-dev build-essential \
             libssl-dev libffi-dev libncurses5-dev libsqlite3-dev zlib1g-dev \
-            openjdk-11-jdk
+            openjdk-11-jdk unzip wget
 
-      - name: Set up Android SDK Build Tools
+      - name: Download Android command line tools
         run: |
-          yes | sdkmanager --licenses
-          sdkmanager "build-tools;36.0.0"
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-33"
+          mkdir -p "$HOME/android-sdk/cmdline-tools"
+          cd "$HOME/android-sdk/cmdline-tools"
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O tools.zip
+          unzip tools.zip
+          mv cmdline-tools latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;36.0.0"
 
       - name: Install Python packages
         run: |
@@ -41,6 +49,8 @@ jobs:
 
       - name: Build APK using Buildozer
         run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           buildozer -v android debug
 
       - name: Upload APK as an artifact
@@ -48,5 +58,6 @@ jobs:
         with:
           name: apk
           path: ./.buildozer/android/platform/build-dists/*/bin/*.apk
+
 
 
